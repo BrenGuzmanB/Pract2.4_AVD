@@ -56,26 +56,10 @@ plt.show()
 
 #%% PROYECCIÓN FINAL
 
-import pandas as pd
-from Sammon import Sammon_Mapping as Sammon
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Category10
 from bokeh.transform import factor_cmap
-
-
-df = pd.read_csv("seeds.txt", sep='\t', header=None, names=[
-    "area A", "perimeter P", "compactness C", "length of kernel",
-    "width of kernel", "asymmetry coefficient", "length of kernel groove", "class" ])
-
-X = df.drop(columns=["class"])
-Y = df["class"]
-
-# Mapeo de Sammon
-X_mapped, E = Sammon(X, 2, Y)
 
 # Crear un DataFrame con los datos mapeados
 df_mapped = pd.DataFrame(X_mapped, columns=['componente_1', 'componente_2'])
@@ -84,17 +68,6 @@ df_mapped['class'] = Y
 class_labels = {1: 'Class 1', 2: 'Class 2', 3: 'Class 3'} 
 df_mapped['class'] = df_mapped['class'].map(class_labels)
 
-X_train, X_test, y_train, y_test = train_test_split(X_mapped, Y, test_size=0.3, random_state=5)
-
-# Entrenar el modelo
-model = LogisticRegression()
-model.fit(X_train, y_train)
-
-# Realizar predicciones y calcular métricas
-y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-classification_report = classification_report(y_test, y_pred)
-confusion = confusion_matrix(y_test, y_pred)
 
 # Crear una figura Bokeh para la visualización
 source = ColumnDataSource(df_mapped)
@@ -105,4 +78,4 @@ color_map = factor_cmap('class', palette=Category10[10], factors=sorted(df_mappe
 
 p.circle('componente_1', 'componente_2', size=8, source=source, legend_field='class', color=color_map)
 
-show(p)  
+show(p)
